@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  flask-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - PORT=5000
+    restart: unless-stopped
+
+  nextjs-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - FLASK_BACKEND_URL=http://flask-backend:5000
+    depends_on:
+      - flask-backend
+    restart: unless-stopped
